@@ -1,0 +1,429 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAF Dashboard - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #111111;
+            --secondary: #444444;
+            --accent: #ff7b25;
+            --accent-glow: rgba(255, 123, 37, 0.4);
+            --danger: #ff3d3d;
+            --success: #4caf50;
+            --light: #f5f5f5;
+            --dark: #222222;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated dots with collision */
+        .dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;
+            box-shadow: 0 0 10px 2px var(--accent-glow);
+        }
+        
+        .login-container {
+            background-color: rgba(30, 30, 30, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), 
+                        0 0 0 1px rgba(255, 123, 37, 0.2),
+                        0 0 30px rgba(255, 123, 37, 0.1) inset;
+            padding: 50px 40px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 123, 37, 0.3);
+            backdrop-filter: blur(8px);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: all 0.5s ease;
+        }
+        
+        .login-container:hover {
+            box-shadow: 0 0 50px rgba(0,0,0,0.9), 
+                        0 0 0 1px rgba(255, 123, 37, 0.3),
+                        0 0 40px rgba(255, 123, 37, 0.2) inset;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .logo {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: 2.2rem;
+            color: var(--light);
+            text-decoration: none;
+            margin-bottom: 15px;
+            display: block;
+            text-shadow: 0 0 10px rgba(255,255,255,0.2);
+            letter-spacing: 1px;
+        }
+        
+        .logo span {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        
+        .login-title {
+            font-size: 1.3rem;
+            color: #aaa;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: #ccc;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: rgba(40, 40, 40, 0.8);
+            color: var(--light);
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-glow);
+            background-color: rgba(50, 50, 50, 0.9);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent);
+            color: var(--dark);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(255, 123, 37, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 123, 37, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        .error-message {
+            color: var(--danger);
+            margin-top: 5px;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+            background-color: rgba(255, 60, 60, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid var(--danger);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        .login-footer i {
+            color: var(--accent);
+            margin-right: 5px;
+        }
+        
+        /* Cyber security decorative elements */
+        .cyber-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
+        .cyber-line.top {
+            top: 0;
+            left: 20%;
+            width: 60%;
+        }
+        
+        .cyber-line.bottom {
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+        }
+        
+        .cyber-line.left {
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 2px;
+            background: linear-gradient(0deg, transparent, var(--accent), transparent);
+        }
+        
+        .cyber-line.right {
+            right: 0;
+            top: 20%;
+            height: 60%;
+            width: 2px;
+            background: linear-gradient(0deg, transparent, var(--accent), transparent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated dots with collision detection -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dotCount = 40; // Increased dot count for more activity
+            const dots = [];
+            const maxSpeed = 1.5; // Slightly faster dots
+            const dotSize = 8;
+            
+            // Create dots
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                
+                // Random position
+                const posX = Math.random() * (window.innerWidth - dotSize);
+                const posY = Math.random() * (window.innerHeight - dotSize);
+                
+                // Random velocity
+                const velX = (Math.random() - 0.5) * maxSpeed * 2;
+                const velY = (Math.random() - 0.5) * maxSpeed * 2;
+                
+                // Random glow intensity
+                const glowIntensity = 0.3 + Math.random() * 0.7;
+                
+                dot.style.left = `${posX}px`;
+                dot.style.top = `${posY}px`;
+                dot.style.width = `${dotSize}px`;
+                dot.style.height = `${dotSize}px`;
+                dot.style.opacity = glowIntensity;
+                dot.style.boxShadow = `0 0 ${5 + glowIntensity * 10}px ${glowIntensity * 2}px var(--accent-glow)`;
+                
+                document.body.appendChild(dot);
+                
+                dots.push({
+                    element: dot,
+                    x: posX,
+                    y: posY,
+                    vx: velX,
+                    vy: velY,
+                    radius: dotSize/2,
+                    glow: glowIntensity
+                });
+            }
+            
+            // Animation loop with collision detection
+            function animate() {
+                for (let i = 0; i < dots.length; i++) {
+                    const dot1 = dots[i];
+                    
+                    // Move dot
+                    dot1.x += dot1.vx;
+                    dot1.y += dot1.vy;
+                    
+                    // Wall collision with bounce
+                    if (dot1.x <= 0 || dot1.x >= window.innerWidth - dotSize) {
+                        dot1.vx *= -0.9; // Slight energy loss
+                        dot1.x = dot1.x <= 0 ? 0 : window.innerWidth - dotSize;
+                        
+                        // Increase glow on bounce
+                        dot1.element.style.boxShadow = `0 0 ${15}px ${dot1.glow * 3}px var(--accent-glow)`;
+                        setTimeout(() => {
+                            dot1.element.style.boxShadow = `0 0 ${5 + dot1.glow * 10}px ${dot1.glow * 2}px var(--accent-glow)`;
+                        }, 100);
+                    }
+                    
+                    if (dot1.y <= 0 || dot1.y >= window.innerHeight - dotSize) {
+                        dot1.vy *= -0.9; // Slight energy loss
+                        dot1.y = dot1.y <= 0 ? 0 : window.innerHeight - dotSize;
+                        
+                        // Increase glow on bounce
+                        dot1.element.style.boxShadow = `0 0 ${15}px ${dot1.glow * 3}px var(--accent-glow)`;
+                        setTimeout(() => {
+                            dot1.element.style.boxShadow = `0 0 ${5 + dot1.glow * 10}px ${dot1.glow * 2}px var(--accent-glow)`;
+                        }, 100);
+                    }
+                    
+                    // Dot-to-dot collision with more dramatic effect
+                    for (let j = i + 1; j < dots.length; j++) {
+                        const dot2 = dots[j];
+                        const dx = dot2.x - dot1.x;
+                        const dy = dot2.y - dot1.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < dot1.radius + dot2.radius) {
+                            // Collision detected - more physical response
+                            const angle = Math.atan2(dy, dx);
+                            const speed1 = Math.sqrt(dot1.vx * dot1.vx + dot1.vy * dot1.vy);
+                            const speed2 = Math.sqrt(dot2.vx * dot2.vx + dot2.vy * dot2.vy);
+                            
+                            // Direction after collision
+                            const direction1 = Math.atan2(dot1.vy, dot1.vx);
+                            const direction2 = Math.atan2(dot2.vy, dot2.vx);
+                            
+                            // Velocity changes with some randomness
+                            dot1.vx = speed2 * Math.cos(direction2) * 0.9;
+                            dot1.vy = speed2 * Math.sin(direction2) * 0.9;
+                            dot2.vx = speed1 * Math.cos(direction1) * 0.9;
+                            dot2.vy = speed1 * Math.sin(direction1) * 0.9;
+                            
+                            // Add small random factor
+                            const randomFactor = 0.7;
+                            dot1.vx += (Math.random() - 0.5) * randomFactor;
+                            dot1.vy += (Math.random() - 0.5) * randomFactor;
+                            dot2.vx += (Math.random() - 0.5) * randomFactor;
+                            dot2.vy += (Math.random() - 0.5) * randomFactor;
+                            
+                            // Separate dots to prevent sticking
+                            const overlap = (dot1.radius + dot2.radius - distance) / 2;
+                            dot1.x -= overlap * Math.cos(angle);
+                            dot1.y -= overlap * Math.sin(angle);
+                            dot2.x += overlap * Math.cos(angle);
+                            dot2.y += overlap * Math.sin(angle);
+                            
+                            // Visual effect on collision
+                            dot1.element.style.boxShadow = `0 0 ${20}px ${dot1.glow * 4}px var(--accent-glow)`;
+                            dot2.element.style.boxShadow = `0 0 ${20}px ${dot2.glow * 4}px var(--accent-glow)`;
+                            setTimeout(() => {
+                                dot1.element.style.boxShadow = `0 0 ${5 + dot1.glow * 10}px ${dot1.glow * 2}px var(--accent-glow)`;
+                                dot2.element.style.boxShadow = `0 0 ${5 + dot2.glow * 10}px ${dot2.glow * 2}px var(--accent-glow)`;
+                            }, 150);
+                        }
+                    }
+                    
+                    // Update position
+                    dot1.element.style.left = `${dot1.x}px`;
+                    dot1.element.style.top = `${dot1.y}px`;
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                for (const dot of dots) {
+                    if (dot.x > window.innerWidth - dotSize) dot.x = window.innerWidth - dotSize;
+                    if (dot.y > window.innerHeight - dotSize) dot.y = window.innerHeight - dotSize;
+                }
+            });
+        });
+    </script>
+    
+    <div class="login-container">
+        <!-- Cyber security decorative borders -->
+        <div class="cyber-line top"></div>
+        <div class="cyber-line bottom"></div>
+        <div class="cyber-line left"></div>
+        <div class="cyber-line right"></div>
+        
+        <div class="login-header">
+            <a href="#" class="logo">XAV<span>1ER</span></a>
+            <h2 class="login-title">SECURE ACCESS PORTAL</h2>
+        </div>
+        
+        {% if error %}
+        <div class="error-message">
+            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user-secret"></i> SECURE ID</label>
+                <input type="text" id="username" name="username" class="form-control" required placeholder="Enter access credentials">
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fas fa-key"></i> ENCRYPTION KEY</label>
+                <input type="password" id="password" name="password" class="form-control" required placeholder="Enter encryption passphrase">
+            </div>
+            
+            <button type="submit" class="btn">
+                <i class="fas fa-lock-open"></i> AUTHENTICATE
+            </button>
+        </form>
+        
+        <div class="login-footer">
+            <i class="fas fa-shield-alt"></i> CYBERSECURITY PROTECTION ACTIVE
+        </div>
+    </div>
+</body>
+</html>

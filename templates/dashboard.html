@@ -1,0 +1,605 @@
+<!-- dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAF Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #333333;
+            --secondary: #555555;
+            --accent: #ff7b25;
+            --danger: #ff3d3d;
+            --success: #4caf50;
+            --light: #f5f5f5;
+            --dark: #222222;
+        }
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(20, 20, 20, 0.9);
+            padding: 15px 0;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid var(--accent);
+        }
+        .security-heading {
+                font-family: 'Orbitron', 'Russo One', sans-serif;
+                font-weight: 700;
+                text-align: center;
+                color: #ff7b25;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                font-size: 2rem;
+                margin: 0 0 20px 0;
+                text-shadow: 0 0 10px rgba(255, 123, 37, 0.5);
+                position: relative;
+                padding-bottom: 15px;
+            }
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px rgba(255, 123, 37, 0.7); }
+            100% { text-shadow: 0 0 20px rgba(255, 123, 37, 1); }
+            }
+         .security-heading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff7b25, transparent);
+            }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #2a2a2a;
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Animated dots with collision */
+        .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .dashboard-container {
+            background-color: rgba(40, 40, 40, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+            padding: 40px;
+            width: 90%;
+            max-width: 1200px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255, 123, 37, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        .logo {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--light);
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .dashboard-title {
+            font-size: 1.2rem;
+            color: var(--light);
+            margin: 0 0 30px 0;
+            text-align: center;
+        }
+        
+        /* Rest of your dashboard styles adjusted for centered layout */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: rgba(60, 60, 60, 0.7);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        .card {
+            background-color: rgba(60, 60, 60, 0.7);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 3px solid var(--accent);
+        }
+        
+        .card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        
+        th {
+            background-color: rgba(70, 70, 70, 0.7);
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        .text-danger {
+            color: var(--danger);
+        }
+        
+        .text-success {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-banner">
+        <h1 class="security-heading">MAKE YOUR DOMAIN SAFER!</h1>
+    </div>
+    <!-- Animated dots with collision detection -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dotCount = 30;
+            const dots = [];
+            const maxSpeed = 1;
+            const dotSize = 8;
+            
+            // Create dots
+            for (let i = 0; i < dotCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                
+                // Random position
+                const posX = Math.random() * (window.innerWidth - dotSize);
+                const posY = Math.random() * (window.innerHeight - dotSize);
+                
+                // Random velocity
+                const velX = (Math.random() - 0.5) * maxSpeed * 2;
+                const velY = (Math.random() - 0.5) * maxSpeed * 2;
+                
+                dot.style.left = `${posX}px`;
+                dot.style.top = `${posY}px`;
+                dot.style.width = `${dotSize}px`;
+                dot.style.height = `${dotSize}px`;
+                dot.style.opacity = 0.3 + Math.random() * 0.5;
+                
+                document.body.appendChild(dot);
+                
+                dots.push({
+                    element: dot,
+                    x: posX,
+                    y: posY,
+                    vx: velX,
+                    vy: velY,
+                    radius: dotSize/2
+                });
+            }
+            
+            // Animation loop with collision detection
+            function animate() {
+                for (let i = 0; i < dots.length; i++) {
+                    const dot1 = dots[i];
+                    
+                    // Move dot
+                    dot1.x += dot1.vx;
+                    dot1.y += dot1.vy;
+                    
+                    // Wall collision
+                    if (dot1.x <= 0 || dot1.x >= window.innerWidth - dotSize) {
+                        dot1.vx *= -1;
+                        dot1.x = dot1.x <= 0 ? 0 : window.innerWidth - dotSize;
+                    }
+                    
+                    if (dot1.y <= 0 || dot1.y >= window.innerHeight - dotSize) {
+                        dot1.vy *= -1;
+                        dot1.y = dot1.y <= 0 ? 0 : window.innerHeight - dotSize;
+                    }
+                    
+                    // Dot-to-dot collision
+                    for (let j = i + 1; j < dots.length; j++) {
+                        const dot2 = dots[j];
+                        const dx = dot2.x - dot1.x;
+                        const dy = dot2.y - dot1.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < dot1.radius + dot2.radius) {
+                            // Collision detected - swap velocities
+                            const angle = Math.atan2(dy, dx);
+                            const speed1 = Math.sqrt(dot1.vx * dot1.vx + dot1.vy * dot1.vy);
+                            const speed2 = Math.sqrt(dot2.vx * dot2.vx + dot2.vy * dot2.vy);
+                            
+                            const direction1 = Math.atan2(dot1.vy, dot1.vx);
+                            const direction2 = Math.atan2(dot2.vy, dot2.vx);
+                            
+                            // New velocities after collision
+                            dot1.vx = speed2 * Math.cos(direction2);
+                            dot1.vy = speed2 * Math.sin(direction2);
+                            dot2.vx = speed1 * Math.cos(direction1);
+                            dot2.vy = speed1 * Math.sin(direction1);
+                            
+                            // Add small random factor
+                            dot1.vx += (Math.random() - 0.5) * 0.5;
+                            dot1.vy += (Math.random() - 0.5) * 0.5;
+                            dot2.vx += (Math.random() - 0.5) * 0.5;
+                            dot2.vy += (Math.random() - 0.5) * 0.5;
+                            
+                            // Separate dots slightly to prevent sticking
+                            const overlap = (dot1.radius + dot2.radius - distance) / 2;
+                            dot1.x -= overlap * Math.cos(angle);
+                            dot1.y -= overlap * Math.sin(angle);
+                            dot2.x += overlap * Math.cos(angle);
+                            dot2.y += overlap * Math.sin(angle);
+                        }
+                    }
+                    
+                    // Update position
+                    dot1.element.style.left = `${dot1.x}px`;
+                    dot1.element.style.top = `${dot1.y}px`;
+                }
+                
+                requestAnimationFrame(animate);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                for (const dot of dots) {
+                    if (dot.x > window.innerWidth - dotSize) dot.x = window.innerWidth - dotSize;
+                    if (dot.y > window.innerHeight - dotSize) dot.y = window.innerHeight - dotSize;
+                }
+            });
+        });
+    </script>
+    <div class="dashboard-container">
+        <div class="login-header">
+            <a href="#" class="logo">XAV<span>1ER</span></a>
+            <h2 class="dashboard-title">Security Dashboard</h2>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-shield-alt"></i> Dashboard</a>
+            <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+        
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-label">Total Requests</div>
+                <div class="stat-value" id="total-requests">0</div>
+                <div class="stat-label">Last 24 hours</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Attack Attempts</div>
+                <div class="stat-value text-danger" id="attack-requests">0</div>
+                <div class="stat-label">Last 24 hours</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Blocked IPs</div>
+                <div class="stat-value" id="blocked-ips">0</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Protected Domains</div>
+                <div class="stat-value text-success" id="protected-domains">0</div>
+                <div class="stat-label">Active</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Request Logs</h2>
+                <div class="filter-bar">
+                    <select id="request-filter" class="form-control">
+                        <option value="all">All Requests</option>
+                        <option value="normal">Normal Requests</option>
+                        <option value="attack">Attack Requests</option>
+                    </select>
+                    <input type="text" id="search-ip" class="form-control" placeholder="Search IP...">
+                    <button id="refresh-btn" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>IP Address</th>
+                            <th>Method</th>
+                            <th>Path</th>
+                            <th>User Agent</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requests-table">
+                        <!-- Requests will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Your existing JavaScript for dashboard functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const requestsTable = document.getElementById('requests-table');
+            const requestFilter = document.getElementById('request-filter');
+            const searchIp = document.getElementById('search-ip');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const blockModal = document.getElementById('block-modal');
+            const reportModal = document.getElementById('report-modal');
+            const blockIpInput = document.getElementById('block-ip');
+            const reportIpInput = document.getElementById('report-ip');
+            
+            // Stats elements
+            const totalRequestsEl = document.getElementById('total-requests');
+            const attackRequestsEl = document.getElementById('attack-requests');
+            const blockedIpsEl = document.getElementById('blocked-ips');
+            const protectedDomainsEl = document.getElementById('protected-domains');
+            
+            // Load initial data
+            loadRequests();
+            loadStats();
+            
+            // Event listeners
+            requestFilter.addEventListener('change', loadRequests);
+            searchIp.addEventListener('input', loadRequests);
+            refreshBtn.addEventListener('click', function() {
+                loadRequests();
+                loadStats();
+            });
+            
+            // Modal close handlers
+            document.querySelectorAll('.close-modal, #cancel-block, #cancel-report').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    blockModal.style.display = 'none';
+                    reportModal.style.display = 'none';
+                });
+            });
+            
+            // Click handlers for dynamically created elements
+            document.addEventListener('click', function(e) {
+                // Block IP button
+                if (e.target.classList.contains('block-btn')) {
+                    const ip = e.target.getAttribute('data-ip');
+                    blockIpInput.value = ip;
+                    blockModal.style.display = 'flex';
+                }
+                
+                // Report button
+                if (e.target.classList.contains('report-btn')) {
+                    const ip = e.target.getAttribute('data-ip');
+                    reportIpInput.value = ip;
+                    reportModal.style.display = 'flex';
+                }
+            });
+            
+            // Confirm block
+            document.getElementById('confirm-block').addEventListener('click', function() {
+                const ip = blockIpInput.value;
+                const reason = document.getElementById('block-reason').value;
+                
+                fetch('/api/block_ip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ip: ip,
+                        reason: reason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        alert('IP blocked successfully');
+                        blockModal.style.display = 'none';
+                        loadRequests();
+                        loadStats();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error blocking IP');
+                });
+            });
+            
+            // Confirm report
+            document.getElementById('confirm-report').addEventListener('click', function() {
+                const ip = reportIpInput.value;
+                const details = document.getElementById('report-details').value;
+                
+                // In a real implementation, you would send this to your backend
+                alert(`Report submitted for IP: ${ip}\nDetails: ${details}`);
+                reportModal.style.display = 'none';
+            });
+            
+            // Functions
+            function loadRequests() {
+                const filter = requestFilter.value;
+                const search = searchIp.value;
+                
+                let url = '/api/requests?';
+                if (filter === 'normal') url += 'is_attack=false&';
+                if (filter === 'attack') url += 'is_attack=true&';
+                if (search) url += `search=${encodeURIComponent(search)}&`;
+                
+                fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    requestsTable.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        requestsTable.innerHTML = '<tr><td colspan="7" style="text-align: center;">No requests found</td></tr>';
+                        return;
+                    }
+                    
+                    data.forEach(request => {
+                        const row = document.createElement('tr');
+                        
+                        const date = new Date(request.timestamp);
+                        const formattedDate = date.toLocaleString();
+                        
+                        let statusBadge = '';
+                        if (request.is_attack) {
+                            statusBadge = `<span class="badge badge-danger">Attack (${request.attack_type})</span>`;
+                        } else {
+                            statusBadge = '<span class="badge badge-success">Normal</span>';
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${formattedDate}</td>
+                            <td>${request.ip}</td>
+                            <td>${request.method}</td>
+                            <td style="font-family: 'Roboto Mono', monospace;">${request.path}</td>
+                            <td>${request.user_agent || 'N/A'}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm block-btn" data-ip="${request.ip}">Block</button>
+                                <button class="btn btn-warning btn-sm report-btn" data-ip="${request.ip}">Report</button>
+                            </td>
+                        `;
+                        
+                        requestsTable.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    requestsTable.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error loading requests</td></tr>';
+                });
+            }
+            
+            function loadStats() {
+                // In a real implementation, you would have API endpoints for these stats
+                // For demo purposes, we'll simulate with random data
+                
+                fetch('/api/requests?limit=1000')
+                .then(response => response.json())
+                .then(requests => {
+                    const total = requests.length;
+                    const attacks = requests.filter(r => r.is_attack).length;
+                    
+                    totalRequestsEl.textContent = total;
+                    attackRequestsEl.textContent = attacks;
+                    
+                    // Simulate blocked IPs count
+                    fetch('/api/blocked_ips')
+                    .then(response => response.json())
+                    .then(blocked => {
+                        blockedIpsEl.textContent = blocked.length;
+                    })
+                    .catch(() => {
+                        blockedIpsEl.textContent = 'N/A';
+                    });
+                })
+                .catch(() => {
+                    totalRequestsEl.textContent = 'N/A';
+                    attackRequestsEl.textContent = 'N/A';
+                });
+                
+                // Protected domains would come from configuration
+                protectedDomainsEl.textContent = 1; // Default domain
+            }
+        });
+    </script>
+</body>
+</html>
